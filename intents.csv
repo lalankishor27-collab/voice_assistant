@@ -1,0 +1,468 @@
+text,intent
+what is the time,get_time
+tell me the time,get_time
+give me the current time,get_time
+current time please,get_time
+what time is it now,get_time
+time please,get_time
+can you tell the time,get_time
+i need the time,get_time
+show me the time,get_time
+get me the time,get_time
+tell time,get_time
+what's the time right now,get_time
+exact time please,get_time
+please tell me the exact time,get_time
+time now,get_time
+what is current time,get_time
+tell current time,get_time
+give current time,get_time
+say the time,get_time
+display the time,get_time
+the time right now,get_time
+i want to know the time,get_time
+check the time,get_time
+time check,get_time
+tell me what time it is,get_time
+
+hello,greeting
+hi,greeting
+hey,greeting
+hello assistant,greeting
+good morning,greeting
+good evening,greeting
+good afternoon,greeting
+hey there,greeting
+hi there,greeting
+hello there,greeting
+greetings,greeting
+how are you,greeting
+hey buddy,greeting
+hi friend,greeting
+yo,greeting
+sup,greeting
+what's up,greeting
+hey assistant,greeting
+hola,greeting
+namaste,greeting
+good day,greeting
+good to see you,greeting
+hey what's up,greeting
+hi how are you,greeting
+hello hi,greeting
+
+turn on the light,turn_on_light
+switch on the light,turn_on_light
+lights on,turn_on_light
+please turn on the light,turn_on_light
+activate the lights,turn_on_light
+turn the lights on,turn_on_light
+switch the lights on,turn_on_light
+can you turn on the light,turn_on_light
+turn on room lights,turn_on_light
+power on the light,turn_on_light
+make it bright,turn_on_light
+enable the lights,turn_on_light
+light on,turn_on_light
+turn on bulb,turn_on_light
+turn lights on please,turn_on_light
+i need lights on,turn_on_light
+please switch on lights,turn_on_light
+can you switch on the light,turn_on_light
+turn on all lights,turn_on_light
+make it brighter,turn_on_light
+start lighting,turn_on_light
+light the room,turn_on_light
+switch on room light,turn_on_light
+switch on my light,turn_on_light
+put on the lights,turn_on_light
+
+turn off the light,turn_off_light
+switch off the light,turn_off_light
+lights off,turn_off_light
+please turn off the light,turn_off_light
+deactivate the lights,turn_off_light
+shut the lights,turn_off_light
+turn the lights off,turn_off_light
+switch the lights off,turn_off_light
+can you turn off the light,turn_off_light
+power off the light,turn_off_light
+dim the light,turn_off_light
+make it dark,turn_off_light
+turn off room lights,turn_off_light
+turn off the bulb,turn_off_light
+stop lighting,turn_off_light
+kill the light,turn_off_light
+shut down lights,turn_off_light
+remove the light,turn_off_light
+disable the light,turn_off_light
+switch off my light,turn_off_light
+put the lights off,turn_off_light
+turn off all lights,turn_off_light
+turn off house lights,turn_off_light
+turn off this light,turn_off_light
+lights out,turn_off_light
+
+increase the volume,increase_volume
+volume up,increase_volume
+raise the volume,increase_volume
+make it louder,increase_volume
+turn volume high,increase_volume
+boost the volume,increase_volume
+increase sound,increase_volume
+sound up,increase_volume
+louder please,increase_volume
+increase audio,increase_volume
+volume louder,increase_volume
+turn sound up,increase_volume
+turn volume to high,increase_volume
+make volume high,increase_volume
+raise audio level,increase_volume
+increase the audio,increase_volume
+volume needs increase,increase_volume
+i need more volume,increase_volume
+turn up, increase_volume
+sound increase,increase_volume
+volume go up,increase_volume
+make it loud,increase_volume
+boost audio,increase_volume
+increase my volume,increase_volume
+sound louder please,increase_volume
+
+decrease the volume,decrease_volume
+volume down,decrease_volume
+lower the volume,decrease_volume
+make it quieter,decrease_volume
+reduce the volume,decrease_volume
+decrease sound,decrease_volume
+sound down,decrease_volume
+quieter please,decrease_volume
+reduce audio,decrease_volume
+turn volume low,decrease_volume
+minimize volume,decrease_volume
+drop the volume,decrease_volume
+volume softer,decrease_volume
+sound quieter,decrease_volume
+turn the sound down,decrease_volume
+turn down volume,decrease_volume
+reduce the speaker volume,decrease_volume
+i need less volume,decrease_volume
+decrease audio level,decrease_volume
+make audio low,decrease_volume
+volume needs to go down,decrease_volume
+turn audio down,decrease_volume
+reduce sound please,decrease_volume
+volume reduce,decrease_volume
+keep volume low,decrease_volume
+
+play music,play_music
+start music,play_music
+play some music,play_music
+start playing songs,play_music
+i want music,play_music
+can you play music,play_music
+music on please,play_music
+turn on music,play_music
+play songs,play_music
+start audio playback,play_music
+put on music,play_music
+begin music,play_music
+music start,play_music
+play my playlist,play_music
+play song please,play_music
+start melody,play_music
+start tunes,play_music
+let’s play music,play_music
+music please,play_music
+play tracks,play_music
+get music on,play_music
+start my music,play_music
+turn music on,play_music
+activate music,play_music
+begin playing music,play_music
+
+stop music,stop_music
+pause the music,stop_music
+stop songs,stop_music
+music off,stop_music
+turn off music,stop_music
+stop audio playback,stop_music
+halt the music,stop_music
+pause songs,stop_music
+stop playing,stop_music
+music stop,stop_music
+stop sound,stop_music
+stop the audio,stop_music
+no music,stop_music
+turn off audio,stop_music
+pause tracks,stop_music
+halt audio,stop_music
+stop the tunes,stop_music
+pause melody,stop_music
+stop my music,stop_music
+mute the music,stop_music
+stop the song,stop_music
+end the music,stop_music
+kill music,stop_music
+stop playing songs,stop_music
+pause playback,stop_music
+
+tell me a joke,tell_joke
+say a joke,tell_joke
+make me laugh,tell_joke
+joke please,tell_joke
+tell something funny,tell_joke
+give me a funny line,tell_joke
+make a joke,tell_joke
+tell funny story,tell_joke
+say something funny,tell_joke
+give humor,tell_joke
+i want a joke,tell_joke
+crack a joke,tell_joke
+funny please,tell_joke
+make me smile,tell_joke
+some humor please,tell_joke
+tell hilarious joke,tell_joke
+say a funny joke,tell_joke
+please joke,tell_joke
+tell fun line,tell_joke
+give me humor,tell_joke
+make me chuckle,tell_joke
+something funny please,tell_joke
+joke time,tell_joke
+tell a comedy line,tell_joke
+share a joke,tell_joke
+
+what is the date,get_date
+tell me the date,get_date
+today's date please,get_date
+what day is today,get_date
+date please,get_date
+show me the date,get_date
+what date is it,get_date
+give me today's date,get_date
+tell date,get_date
+current date please,get_date
+i need today date,get_date
+date now,get_date
+which date is today,get_date
+today date,get_date
+say today's date,get_date
+display date,get_date
+tell me what day it is,get_date
+what day today,get_date
+check date,get_date
+tell the date,get_date
+please tell date,get_date
+day and date please,get_date
+i want the date,get_date
+give date,get_date
+today's day and date,get_date
+
+open youtube,open_youtube
+launch youtube,open_youtube
+start youtube,open_youtube
+open the youtube app,open_youtube
+go to youtube,open_youtube
+start YouTube app,open_youtube
+YouTube please,open_youtube
+open my youtube,open_youtube
+start video app,open_youtube
+open videos,open_youtube
+launch video site,open_youtube
+open youtube now,open_youtube
+turn on youtube,open_youtube
+youtube open please,open_youtube
+open the video platform,open_youtube
+start online video,open_youtube
+go youtube,open_youtube
+youtube start,open_youtube
+open video player,open_youtube
+access youtube,open_youtube
+run youtube,open_youtube
+open youtube application,open_youtube
+launch the youtube app,open_youtube
+open my video app,open_youtube
+open the youtube page,open_youtube
+
+open google,open_google
+launch google,open_google
+start google,open_google
+open chrome google,open_google
+go to google,open_google
+search google,open_google
+open google now,open_google
+google please,open_google
+open the google page,open_google
+bring up google,open_google
+google open,open_google
+start chrome search,open_google
+open browser google,open_google
+open search engine,open_google
+google start,open_google
+launch google page,open_google
+go google,open_google
+run google,open_google
+google chrome open,open_google
+search browser open,open_google
+show google page,open_google
+turn on google,open_google
+google site open,open_google
+open google search engine,open_google
+start search,open_google
+
+open calculator,open_calculator
+start calculator,open_calculator
+launch calculator,open_calculator
+open calc,open_calculator
+open the calculator app,open_calculator
+start calc app,open_calculator
+calculator please,open_calculator
+bring up calculator,open_calculator
+turn on calculator,open_calculator
+calc open,open_calculator
+calculator open,open_calculator
+run calculator,open_calculator
+start calculator now,open_calculator
+open calculator now,open_calculator
+open math app,open_calculator
+start math tool,open_calculator
+open calculator screen,open_calculator
+open compute app,open_calculator
+activate calculator,open_calculator
+open number tool,open_calculator
+calculator start,open_calculator
+turn on calc,open_calculator
+calculator launch,open_calculator
+start math calculator,open_calculator
+begin calculator,open_calculator
+
+open settings,open_settings
+open the settings,open_settings
+go to settings,open_settings
+launch settings,open_settings
+open device settings,open_settings
+start settings app,open_settings
+settings please,open_settings
+settings menu open,open_settings
+open phone settings,open_settings
+open app settings,open_settings
+open system settings,open_settings
+settings start,open_settings
+open configuration menu,open_settings
+open config settings,open_settings
+settings launch,open_settings
+go settings,open_settings
+open preferences,open_settings
+open control settings,open_settings
+settings panel open,open_settings
+settings now,open_settings
+start preferences,open_settings
+open setup options,open_settings
+open my settings,open_settings
+open system preferences,open_settings
+open settings page,open_settings
+
+shutdown the system,shutdown_device
+shut down device,shutdown_device
+power off the system,shutdown_device
+turn off the system,shutdown_device
+turn off computer,shutdown_device
+shutdown computer,shutdown_device
+switch off device,shutdown_device
+please shut down,shutdown_device
+turn system off,shutdown_device
+shutdown now,shutdown_device
+power down,shutdown_device
+halt the system,shutdown_device
+kill power,shutdown_device
+stop device,shutdown_device
+off the computer,shutdown_device
+shut off machine,shutdown_device
+device shutdown,shutdown_device
+system off please,shutdown_device
+switch system off,shutdown_device
+shutdown it,shutdown_device
+turn it off,shutdown_device
+please power off,shutdown_device
+turn computer off,shutdown_device
+shut down everything,shutdown_device
+shut machine down,shutdown_device
+
+restart system,restart_device
+restart device,restart_device
+reboot the system,restart_device
+reboot device,restart_device
+restart computer,restart_device
+system restart,restart_device
+please restart,restart_device
+restart now,restart_device
+start system again,restart_device
+reboot now,restart_device
+power cycle system,restart_device
+restart machine,restart_device
+computer reboot,restart_device
+system reboot now,restart_device
+restart this device,restart_device
+reset system,restart_device
+restart whole system,restart_device
+restart operation,restart_device
+i want to reboot,restart_device
+initiate reboot,restart_device
+please restart computer,restart_device
+reboot this machine,restart_device
+start again device,restart_device
+restart entire system,restart_device
+system needs restart,restart_device
+
+set alarm for 7 am,set_alarm
+please set an alarm,set_alarm
+set an alarm for me,set_alarm
+i need an alarm,set_alarm
+alarm for morning,set_alarm
+wake me at 7,set_alarm
+set morning alarm,set_alarm
+set alarm now,set_alarm
+start alarm,set_alarm
+schedule alarm,set_alarm
+alarm please,set_alarm
+alarm for tomorrow,set_alarm
+ring me at 7,set_alarm
+wake me up,set_alarm
+set wake up alarm,set_alarm
+alarm on,set_alarm
+put an alarm,set_alarm
+make an alarm,set_alarm
+add alarm,set_alarm
+alarm at morning,set_alarm
+wake me in the morning,set_alarm
+alarm at 7 am,set_alarm
+morning alarm please,set_alarm
+7 am alarm,set_alarm
+alarm setup,set_alarm
+
+set a reminder,set_reminder
+remind me later,set_reminder
+set reminder for me,set_reminder
+i need a reminder,set_reminder
+please remind me,set_reminder
+set task reminder,set_reminder
+remind me tomorrow,set_reminder
+remind me at evening,set_reminder
+add reminder,set_reminder
+create reminder,set_reminder
+schedule reminder,set_reminder
+keep reminder,set_reminder
+set important reminder,set_reminder
+note this down,set_reminder
+remember this for me,set_reminder
+remind me this,set_reminder
+add note reminder,set_reminder
+remind later please,set_reminder
+set daily reminder,set_reminder
+reminder now,set_reminder
+put reminder,set_reminder
+create a reminder please,set_reminder
+add this reminder,set_reminder
+help me remember,set_reminder
+store reminder,set_reminder

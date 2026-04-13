@@ -1,0 +1,5 @@
+numpy==1.26.4
+pandas==2.2.3
+sounddevice==0.4.6
+scikit-learn==1.4.2
+joblib==1.4.2
