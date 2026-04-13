@@ -16,22 +16,22 @@ A Python-based offline voice assistant that performs real‑time speech recognit
 ## 📁 Project Structure
 ```bash
 voice_assistant/
-├── assistant.py # Main voice‑activated assistant
-├── assistant_text.py # Text‑based version (no microphone)
-├── train.py # Train and evaluate intent classifiers
-├── intents.csv # Training data (text + intent labels)
-├── requirements.txt # Python dependencies
-├── models/ # Trained models and vectorizer
+├── assistant.py 
+├── assistant_text.py 
+├── train.py 
+├── intents.csv
+├── requirements.txt
+├── models/ 
 │ ├── vectorizer.joblib
 │ ├── best_model.joblib
 │ ├── LogisticRegression.joblib
 │ ├── LinearSVM.joblib
 │ ├── MultinomialNB.joblib
 │ ├── KNN.joblib
-│ └── results_summary.csv # Model performance comparison
+│ └── results_summary.csv
 ├── logs/
-│ └── utterances.csv # Recorded user interactions
-├── vosk-model/ # Vosk speech recognition model (you must download)
+│ └── utterances.csv
+├── vosk-model/
 └── README.md
 ```
 
