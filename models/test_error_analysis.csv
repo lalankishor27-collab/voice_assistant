@@ -1,0 +1,108 @@
+text,actual_intent,predicted_intent,confidence,is_correct
+start video app,open_youtube,open_youtube,0.6633,True
+restart now,restart_device,restart_device,0.8016,True
+put reminder,set_reminder,set_reminder,0.7655,True
+start calculator,open_calculator,open_calculator,0.7994,True
+power on the light,turn_on_light,turn_on_light,0.7105,True
+start melody,play_music,play_music,0.2096,True
+funny please,tell_joke,tell_joke,0.7186,True
+light the room,turn_on_light,turn_off_light,0.5083,False
+turn off all lights,turn_off_light,turn_off_light,0.5674,True
+search google,open_google,open_google,0.8375,True
+turn system off,shutdown_device,shutdown_device,0.7909,True
+stop my music,stop_music,stop_music,0.538,True
+alarm for tomorrow,set_alarm,set_alarm,0.7211,True
+what s the time right now,get_time,get_time,0.8144,True
+play some music,play_music,play_music,0.7762,True
+make it brighter,turn_on_light,increase_volume,0.506,False
+please turn on the light,turn_on_light,turn_on_light,0.7259,True
+morning alarm please,set_alarm,set_alarm,0.7789,True
+pause the music,stop_music,stop_music,0.7896,True
+open device settings,open_settings,open_settings,0.7114,True
+reset system,restart_device,restart_device,0.4453,True
+please remind me,set_reminder,set_reminder,0.7945,True
+please tell date,get_date,get_date,0.76,True
+turn volume high,increase_volume,increase_volume,0.5133,True
+what is the stock price of apple,unknown,unknown,0.7749,True
+hey,greeting,greeting,0.7779,True
+calculator please,open_calculator,open_calculator,0.8042,True
+shut down device,shutdown_device,shutdown_device,0.6718,True
+please shut down,shutdown_device,shutdown_device,0.5622,True
+make volume high,increase_volume,increase_volume,0.4796,True
+volume needs to go down,decrease_volume,increase_volume,0.3638,False
+browse videos on youtube,open_youtube,open_youtube,0.7766,True
+activate the lights,turn_on_light,turn_off_light,0.5198,False
+open the settings,open_settings,open_settings,0.7386,True
+switch on the light,turn_on_light,turn_on_light,0.7771,True
+reboot device,restart_device,restart_device,0.7387,True
+open computer settings panel,open_settings,open_settings,0.7274,True
+hola,greeting,unknown,0.2344,False
+initiate reboot,restart_device,restart_device,0.7673,True
+lights off,turn_off_light,turn_off_light,0.7795,True
+reboot the system,restart_device,restart_device,0.5245,True
+tell funny story,tell_joke,tell_joke,0.7486,True
+open setup options,open_settings,open_calculator,0.2028,False
+start audio playback,play_music,play_music,0.4783,True
+book a flight to london next friday,unknown,unknown,0.6526,True
+turn on calc,open_calculator,open_calculator,0.4896,True
+boost the volume please,increase_volume,increase_volume,0.6721,True
+shutdown the system,shutdown_device,shutdown_device,0.8025,True
+turn off house lights,turn_off_light,turn_off_light,0.6319,True
+how far is mars from earth,unknown,unknown,0.6304,True
+note this down,set_reminder,set_reminder,0.3893,True
+deactivate the lights,turn_off_light,turn_off_light,0.5479,True
+open the google page,open_google,open_google,0.7534,True
+set reminder for me,set_reminder,set_reminder,0.774,True
+give me humor,tell_joke,tell_joke,0.6542,True
+music on please,play_music,play_music,0.6856,True
+make it dark,turn_off_light,increase_volume,0.3785,False
+cut the audio playback,stop_music,stop_music,0.4109,True
+tell hilarious joke,tell_joke,tell_joke,0.8112,True
+system restart,restart_device,restart_device,0.8103,True
+end the music,stop_music,stop_music,0.6865,True
+start online video,open_youtube,unknown,0.4268,False
+bring up the system calculator,open_calculator,open_calculator,0.5363,True
+activate calculator,open_calculator,open_calculator,0.7393,True
+google please,open_google,open_google,0.7991,True
+joke time,tell_joke,tell_joke,0.4676,True
+raise the volume,increase_volume,increase_volume,0.5209,True
+tell me the time,get_time,get_time,0.7921,True
+tell date,get_date,get_date,0.7932,True
+hello hi,greeting,greeting,0.819,True
+alarm at 7 am,set_alarm,set_alarm,0.7841,True
+schedule a wake up alarm for tomorrow,set_alarm,set_alarm,0.7618,True
+device shutdown,shutdown_device,shutdown_device,0.7679,True
+open my settings,open_settings,open_settings,0.7181,True
+current time please,get_time,get_time,0.8094,True
+drop the volume,decrease_volume,decrease_volume,0.5621,True
+recipe for chocolate chip cookies,unknown,unknown,0.5233,True
+kill music,stop_music,play_music,0.5973,False
+increase the volume,increase_volume,increase_volume,0.7005,True
+what is quantum computing,unknown,unknown,0.707,True
+what day of the month is it,get_date,unknown,0.5273,False
+play tracks,play_music,play_music,0.6556,True
+tell me the date,get_date,get_date,0.7717,True
+go to google,open_google,open_google,0.708,True
+decrease the volume,decrease_volume,decrease_volume,0.7156,True
+power down the computer safely,shutdown_device,shutdown_device,0.7795,True
+what is current time,get_time,get_time,0.5942,True
+open google now,open_google,open_google,0.785,True
+start google,open_google,open_google,0.7869,True
+add alarm,set_alarm,set_alarm,0.7497,True
+get me the time,get_time,get_time,0.8031,True
+make me laugh,tell_joke,tell_joke,0.7013,True
+turn audio down,decrease_volume,decrease_volume,0.5622,True
+open youtube,open_youtube,open_youtube,0.824,True
+please tell me the exact time,get_time,get_time,0.717,True
+what s up,greeting,greeting,0.3386,True
+halt the currently playing song,stop_music,stop_music,0.5159,True
+hey there,greeting,greeting,0.775,True
+add reminder,set_reminder,set_reminder,0.8087,True
+how do airplanes fly,unknown,unknown,0.6979,True
+set task reminder,set_reminder,set_reminder,0.8055,True
+volume down,decrease_volume,decrease_volume,0.6088,True
+open preferences,open_settings,open_settings,0.7273,True
+start youtube app,open_youtube,open_youtube,0.7869,True
+begin playing music,play_music,play_music,0.6712,True
+raise audio level,increase_volume,increase_volume,0.4277,True
+which day is it today on the calendar,get_date,get_date,0.4335,True

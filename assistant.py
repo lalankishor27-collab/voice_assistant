@@ -1,3 +1,14 @@
+# assistant.py
+"""
+Offline Voice Assistant: Real-Time Audio Capture, Vosk ASR, ML Pipeline & ActionRouter
+- Real-time VAD voice segment collection
+- Vosk offline acoustic decoding
+- Leakage-free trained Pipeline inference (TF-IDF + Calibrated Model)
+- Two-Tier OOD & Clarification (Tuned Threshold + 'unknown' class)
+- Decoupled ActionRouter execution with safe simulation for destructive commands
+- Detailed latency telemetry: Interaction Latency vs Algorithmic Processing Latency
+"""
+
 import os
 import sys
 import queue
@@ -16,6 +27,8 @@ from vosk import Model, KaldiRecognizer
 import joblib
 import pyttsx3
 
+from actions import ActionRouter
+
 # -------------------------
 # Config
 # -------------------------
@@ -25,18 +38,35 @@ FRAME_SAMPLES = int(FS * FRAME_MS / 1000)
 FRAME_BYTES = FRAME_SAMPLES * 2
 VAD_AGGRESSIVENESS = 2
 SILENCE_FRAMES_AFTER_SPEECH = int(300 / FRAME_MS)
-CONF_THRESHOLD = 0.45
 LOG_DIR = "logs"
 LOG_FILE = os.path.join(LOG_DIR, "utterances.csv")
 VOSK_MODEL_DIR = "vosk-model"
 MODELS_DIR = "models"
+BEST_MODEL_PATH = os.path.join(MODELS_DIR, "best_model.joblib")
+TUNED_THRESH_PATH = os.path.join(MODELS_DIR, "tuned_threshold.txt")
 STREAM_BLOCKSIZE = FRAME_SAMPLES
 
+# 1. Load Tuned Confidence Threshold
+CONF_THRESHOLD = 0.35
+if os.path.exists(TUNED_THRESH_PATH):
+    try:
+        with open(TUNED_THRESH_PATH, "r") as f:
+            CONF_THRESHOLD = float(f.read().strip())
+    except Exception:
+        pass
+print(f"[INFO] Using confidence threshold: {CONF_THRESHOLD:.2f}")
+
 os.makedirs(LOG_DIR, exist_ok=True)
+LOG_HEADER = [
+    "timestamp", "asr_text", "clean_text", "pred_intent", "confidence", "top_k",
+    "fallback_triggered", "vad_speech_duration_ms", "asr_latency_ms",
+    "inference_latency_ms", "action_latency_ms", "tts_latency_ms",
+    "total_processing_latency_ms", "total_interaction_latency_ms", "model_used"
+]
 if not os.path.exists(LOG_FILE):
     with open(LOG_FILE, "w", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
-        writer.writerow(["timestamp", "asr_text", "clean_text", "pred_intent", "prob", "top_k", "model_used"])
+        writer.writerow(LOG_HEADER)
 
 # -------------------------
 # Load VOSK model
@@ -53,40 +83,16 @@ except Exception:
     raise
 
 # -------------------------
-# Load vectorizer and classifier (prefer best_model)
+# Load Pipeline & ActionRouter
 # -------------------------
-vect_path = os.path.join(MODELS_DIR, "vectorizer.joblib")
-best_model_path = os.path.join(MODELS_DIR, "best_model.joblib")
-clf_fallback_path = os.path.join(MODELS_DIR, "intent_clf.joblib")
+if not os.path.exists(BEST_MODEL_PATH):
+    raise SystemExit(f"Model not found at {BEST_MODEL_PATH}. Run training first.")
 
-if not os.path.exists(vect_path):
-    raise SystemExit(f"Vectorizer not found at {vect_path}. Run training first.")
+pipeline = joblib.load(BEST_MODEL_PATH)
+model_name_loaded = os.path.basename(BEST_MODEL_PATH)
+print(f"[INFO] Loaded pipeline from {BEST_MODEL_PATH}")
 
-vect = joblib.load(vect_path)
-print(f"[INFO] Loaded vectorizer from {vect_path}")
-
-clf = None
-model_name_loaded = None
-if os.path.exists(best_model_path):
-    try:
-        clf = joblib.load(best_model_path)
-        model_name_loaded = os.path.basename(best_model_path)
-        print(f"[INFO] Loaded classifier from {best_model_path}")
-    except Exception as e:
-        print(f"[WARN] Failed to load {best_model_path}: {e}")
-
-if clf is None and os.path.exists(clf_fallback_path):
-    try:
-        clf = joblib.load(clf_fallback_path)
-        model_name_loaded = os.path.basename(clf_fallback_path)
-        print(f"[INFO] Loaded classifier from fallback {clf_fallback_path}")
-    except Exception as e:
-        print(f"[FATAL] Failed to load fallback classifier {clf_fallback_path}: {e}")
-        sys.exit(1)
-
-if clf is None:
-    print("[FATAL] No classifier found. Train a model first.")
-    sys.exit(1)
+router = ActionRouter(safe_mode=True)
 
 # -------------------------
 # TTS and stream control
@@ -95,8 +101,10 @@ engine = pyttsx3.init()
 tts_lock = threading.Lock()
 stream_obj = None
 
-def speak(text: str):
+def speak(text: str) -> float:
+    """Speak text through TTS and return elapsed milliseconds."""
     global stream_obj
+    t0 = time.perf_counter()
     with tts_lock:
         try:
             if stream_obj is not None and stream_obj.active:
@@ -110,14 +118,45 @@ def speak(text: str):
                 stream_obj.start()
         except Exception:
             pass
+    return (time.perf_counter() - t0) * 1000
 
 # -------------------------
-# Logging
+# Production Telemetry Logging
 # -------------------------
-def log_turn(asr_text: str, clean_text: str, pred_intent: str, prob: float, top_k: str):
+def log_turn(
+    asr_text: str,
+    clean_text: str,
+    pred_intent: str,
+    confidence: float,
+    top_k: str,
+    fallback_triggered: bool,
+    vad_ms: float,
+    asr_ms: float,
+    inf_ms: float,
+    act_ms: float,
+    tts_ms: float,
+    total_proc_ms: float,
+    total_interact_ms: float
+):
     with open(LOG_FILE, "a", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
-        writer.writerow([datetime.datetime.now().isoformat(), asr_text, clean_text, pred_intent, float(prob) if prob is not None else "", top_k, model_name_loaded])
+        writer.writerow([
+            datetime.datetime.now().isoformat(),
+            asr_text,
+            clean_text,
+            pred_intent,
+            round(float(confidence), 4) if confidence is not None else "",
+            top_k,
+            fallback_triggered,
+            round(vad_ms, 2),
+            round(asr_ms, 2),
+            round(inf_ms, 2),
+            round(act_ms, 2),
+            round(tts_ms, 2),
+            round(total_proc_ms, 2),
+            round(total_interact_ms, 2),
+            model_name_loaded
+        ])
 
 # -------------------------
 # Audio capture
@@ -141,13 +180,13 @@ def vad_collect_speech(timeout=None):
     frames = []
     triggered = False
     silent_frames = 0
-    start_time = time.time()
+    start_time = time.perf_counter()
 
     while True:
         try:
             chunk = audio_q.get(timeout=timeout)
         except queue.Empty:
-            return None
+            return None, 0.0
 
         if len(chunk) < FRAME_BYTES:
             chunk = chunk.ljust(FRAME_BYTES, b'\x00')
@@ -170,151 +209,145 @@ def vad_collect_speech(timeout=None):
                 frames.append(chunk)
                 if silent_frames > SILENCE_FRAMES_AFTER_SPEECH:
                     break
-            else:
-                pass
 
-        if timeout is not None and (time.time() - start_time) > timeout:
+        if timeout is not None and (time.perf_counter() - start_time) > timeout:
             if triggered and frames:
                 break
-            return None
+            return None, 0.0
 
     if not frames:
-        return None
-    return b"".join(frames)
+        return None, 0.0
+
+    vad_duration_ms = (time.perf_counter() - start_time) * 1000
+    return b"".join(frames), vad_duration_ms
 
 # -------------------------
 # NLU helpers
 # -------------------------
 def normalize_text(text: str) -> str:
     t = text.lower().strip()
-    t = re.sub(r"[^a-z0-9\s]", "", t)
+    t = re.sub(r"[^a-z0-9\s]", " ", t)
     t = re.sub(r"\s+", " ", t).strip()
     return t
 
-def get_top_k_from_probs(probs, k=3):
-    idx = np.argsort(probs)[::-1][:k]
-    return [(clf.classes_[i], float(probs[i])) for i in idx]
-
-def safe_predict_proba(clf, X):
-    """Return prob array if available, else None."""
-    try:
-        if hasattr(clf, "predict_proba"):
-            return clf.predict_proba(X)[0]
-    except Exception:
-        return None
-    return None
-
 # -------------------------
-# Process segment
+# Process segment and execute action
 # -------------------------
-def process_segment_and_respond(segment_bytes: bytes):
+def process_segment_and_respond(segment_bytes: bytes, vad_duration_ms: float):
+    t_proc_start = time.perf_counter()
+
+    # 1. ASR Decoding
+    t_asr_start = time.perf_counter()
     rec = KaldiRecognizer(vosk_model, FS)
     rec.AcceptWaveform(segment_bytes)
     res = rec.Result()
     j = json.loads(res)
     asr_text = j.get("text", "").strip()
-    print(f"[ASR] -> {asr_text!r}")
+    asr_ms = (time.perf_counter() - t_asr_start) * 1000
+    print(f"\n[ASR] -> \"{asr_text}\" (Decoded in {asr_ms:.1f} ms)")
 
     if not asr_text:
-        speak("I didn't catch that. Could you repeat?")
+        tts_ms = speak("I didn't catch that. Could you repeat?")
+        total_proc_ms = (time.perf_counter() - t_proc_start) * 1000
+        log_turn("", "", "empty_asr", 0.0, "", True, vad_duration_ms, asr_ms, 0.0, 0.0, tts_ms, total_proc_ms, vad_duration_ms + total_proc_ms)
         return
 
     clean_text = normalize_text(asr_text)
 
-    # RULE-BASED OVERRIDES (fast deterministic checks)
-    intent = None
-    top_prob = None
-    probs = None
-    # greetings
-    if any(w in clean_text.split() for w in ("hello","hi","hey","goodmorning","goodevening")):
-        intent = "greeting"; top_prob = 1.0
-    # time
-    elif "time" in clean_text or "what time" in clean_text:
-        intent = "get_time"; top_prob = 1.0
-    # volume up
-    elif any(x in clean_text for x in ("volume up","increase volume","raise the volume","make it louder","louder")):
-        intent = "increase_volume"; top_prob = 1.0
-    # volume down
-    elif any(x in clean_text for x in ("volume down","decrease volume","lower the volume","make it quieter","quieter")):
-        intent = "decrease_volume"; top_prob = 1.0
+    # 2. Rule-based Fast-Path Overrides
+    rule_intent = None
+    if any(w in clean_text.split() for w in ("hello", "hi", "hey", "goodmorning", "goodevening")):
+        rule_intent = "greeting"
+    elif "what time" in clean_text or clean_text == "time":
+        rule_intent = "get_time"
+
+    # 3. Pipeline Inference
+    t_inf_start = time.perf_counter()
+    if hasattr(pipeline, "predict_proba"):
+        probs = pipeline.predict_proba([clean_text])[0]
+        classes = pipeline.classes_
+        top_idx = np.argsort(probs)[::-1]
+        predicted_intent = classes[top_idx[0]]
+        confidence = float(probs[top_idx[0]])
+        top_k = [(classes[i], float(probs[i])) for i in top_idx[:3]]
     else:
-        # fallback to classifier
-        try:
-            X = vect.transform([clean_text])
-            intent = clf.predict(X)[0]
-            probs = safe_predict_proba(clf, X)
-            top_prob = float(np.max(probs)) if probs is not None else None
-        except Exception as e:
-            print("[ERROR] NLU processing failed:", e)
-            intent = "unknown"
-            top_prob = 0.0
+        predicted_intent = pipeline.predict([clean_text])[0]
+        confidence = 1.0
+        top_k = [(predicted_intent, 1.0)]
+    inf_ms = (time.perf_counter() - t_inf_start) * 1000
 
-    # compute top-k for logging / clarification (if available)
-    top_k_str = ""
-    if probs is not None:
-        top_k = get_top_k_from_probs(probs, k=3)
-        top_k_str = ";".join([f"{p}:{prob:.3f}" for p,prob in top_k])
+    if rule_intent:
+        final_intent = rule_intent
+        confidence = 1.0
+        is_override = True
     else:
-        top_k = [(intent, top_prob)]
+        final_intent = predicted_intent
+        is_override = False
 
-    print("[NLU] intent:", intent, "prob:", top_prob, "top_k:", top_k)
+    top_k_str = "; ".join([f"{name}: {prob:.2f}" for name, prob in top_k])
+    print(f"[NLU] Intent: {final_intent} (Conf: {confidence:.2f}{' [Rule Override]' if is_override else ''})")
+    print(f"[NLU] Candidates: {top_k_str}")
 
-    # log
+    # 4. Action Dispatch (Two-Tier OOD / Low Confidence Handling)
+    t_act_start = time.perf_counter()
+    fallback_triggered = False
+
+    if confidence < CONF_THRESHOLD:
+        # Tier 2: Low Confidence Fallback -> Ask for clarification
+        fallback_triggered = True
+        options = ", or ".join([name for name, _ in top_k[:3]])
+        reply = f"I am not sure what you meant. Did you mean {options}?"
+        act_ms = (time.perf_counter() - t_act_start) * 1000
+    elif final_intent == "unknown":
+        # Tier 1: Explicit Out-of-Domain Intent
+        fallback_triggered = True
+        action_res = router.dispatch("unknown", {"text": clean_text})
+        reply = action_res["reply"]
+        act_ms = (time.perf_counter() - t_act_start) * 1000
+    else:
+        # In-domain confident intent
+        action_res = router.dispatch(final_intent, {"text": clean_text})
+        reply = action_res["reply"]
+        act_ms = (time.perf_counter() - t_act_start) * 1000
+
+    print(f"[ACTION] Reply: \"{reply}\"")
+
+    # 5. TTS Response
+    tts_ms = speak(reply)
+
+    # 6. Latency Accounting
+    total_proc_ms = (time.perf_counter() - t_proc_start) * 1000
+    total_interaction_ms = vad_duration_ms + total_proc_ms
+
+    print(f"[LATENCY] Speech Duration: {vad_duration_ms:.0f}ms | Processing: {total_proc_ms:.1f}ms "
+          f"(ASR: {asr_ms:.1f}ms, Inf: {inf_ms:.2f}ms, Act: {act_ms:.2f}ms, TTS: {tts_ms:.1f}ms) | Total: {total_interaction_ms:.0f}ms")
+
+    # 7. Production Telemetry Logging
     try:
-        log_turn(asr_text, clean_text, intent, top_prob, top_k_str)
+        log_turn(
+            asr_text, clean_text, final_intent, confidence, top_k_str,
+            fallback_triggered, vad_duration_ms, asr_ms, inf_ms, act_ms,
+            tts_ms, total_proc_ms, total_interaction_ms
+        )
     except Exception as e:
-        print("[WARN] Failed to log turn:", e)
-
-    # low confidence handling
-    if top_prob is None or top_prob < CONF_THRESHOLD:
-        if probs is not None:
-            top3 = get_top_k_from_probs(probs, k=3)
-            options = ", or ".join([t for t,_ in top3])
-            speak(f"I am not sure what you meant. Did you mean {options}? Please say yes or repeat.")
-            print("[NLU] Asked for clarification. top3:", top3)
-            return
-        else:
-            speak("I am not sure what you meant. Could you please repeat or clarify?")
-            return
-
-    # map intents -> replies / actions
-    if intent == "get_time":
-        reply = time.strftime("The time is %H:%M")
-    elif intent == "greeting":
-        reply = "Hello! How can I help?"
-    elif intent == "turn_on_light":
-        reply = "Okay, turning on the light."
-    elif intent == "turn_off_light":
-        reply = "Okay, turning off the light."
-    elif intent == "play_music":
-        reply = "Playing music."
-    elif intent == "stop_music":
-        reply = "Stopping music."
-    elif intent == "increase_volume":
-        reply = "Increasing volume."
-    elif intent == "decrease_volume":
-        reply = "Decreasing volume."
-    else:
-        reply = f"Recognized intent {intent}."
-
-    speak(reply)
+        print(f"[WARN] Telemetry logging failed: {e}")
 
 # -------------------------
 # Main loop & stream
 # -------------------------
 def main_loop():
-    print("[INFO] Listening... Speak after the prompt. Press Ctrl+C to exit.")
+    print(f"\n[INFO] Listening... Speak clearly into your microphone. (Ctrl+C to exit)")
     try:
         while True:
-            segment = vad_collect_speech(timeout=10.0)
+            segment, vad_duration_ms = vad_collect_speech(timeout=10.0)
             if segment is None:
                 continue
-            process_segment_and_respond(segment)
-            time.sleep(0.12)
+            process_segment_and_respond(segment, vad_duration_ms)
+            time.sleep(0.1)
     except KeyboardInterrupt:
         print("\n[INFO] Exiting on user interrupt.")
     except Exception:
-        print("[ERROR] Unexpected exception in main loop:")
+        print("[ERROR] Exception in main loop:")
         traceback.print_exc()
 
 def start_stream_and_run():
@@ -338,5 +371,7 @@ def start_stream_and_run():
             pass
 
 if __name__ == "__main__":
-    print("---- Voice Assistant (patched) ----")
+    print("==========================================================")
+    print("🎙️ Offline Voice Assistant (MathCo Architecture)")
+    print("==========================================================")
     start_stream_and_run()

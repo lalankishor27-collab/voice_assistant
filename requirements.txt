@@ -3,3 +3,8 @@ pandas==2.2.3
 sounddevice==0.4.6
 scikit-learn==1.4.2
 joblib==1.4.2
+vosk>=0.3.45
+pyttsx3>=2.99
+webrtcvad-wheels>=2.0.14
+matplotlib>=3.10.0
+

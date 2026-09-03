@@ -1,151 +1,159 @@
 # assistant_text.py
 """
-Simple text-based interface to your NLU + action pipeline.
-Usage:
-    (.venv) > python assistant_text.py
-Then just type commands like: hello, what time is it, play music
-Type "exit" or Ctrl+C to quit.
+Text-based Interactive Assistant & Pipeline Benchmark
+- Loads the leakage-free Pipeline (best_model.joblib)
+- Applies train-tuned confidence threshold
+- Two-Tier OOD Handling: Explicit 'unknown' class + Confidence Gating
+- Dispatches through ActionRouter
+- Displays component latency breakdown (preprocess, inference, action)
 """
 
 import os
-import joblib
+import sys
 import re
 import time
-import sys
+import joblib
 import numpy as np
-import webbrowser
-import pyttsx3
+
+from actions import ActionRouter
 
 MODELS_DIR = "models"
-VECT_PATH = os.path.join(MODELS_DIR, "vectorizer.joblib")
 BEST_MODEL_PATH = os.path.join(MODELS_DIR, "best_model.joblib")
-FALLBACK_MODEL_PATH = os.path.join(MODELS_DIR, "intent_clf.joblib")
+TUNED_THRESH_PATH = os.path.join(MODELS_DIR, "tuned_threshold.txt")
 
-# Load vectorizer
-if not os.path.exists(VECT_PATH):
-    print(f"[FATAL] Vectorizer not found at {VECT_PATH}. Please run the training script first.")
-    sys.exit(1)
-vect = joblib.load(VECT_PATH)
-
-# Load classifier: prefer best_model.joblib, fallback to intent_clf.joblib
-clf = None
-if os.path.exists(BEST_MODEL_PATH):
+# 1. Load Confidence Threshold
+CONF_THRESHOLD = 0.35
+if os.path.exists(TUNED_THRESH_PATH):
     try:
-        clf = joblib.load(BEST_MODEL_PATH)
-        print(f"[INFO] Loaded classifier from {BEST_MODEL_PATH}")
-    except Exception as e:
-        print(f"[WARN] Failed to load {BEST_MODEL_PATH}: {e}")
-        clf = None
+        with open(TUNED_THRESH_PATH, "r") as f:
+            CONF_THRESHOLD = float(f.read().strip())
+    except Exception:
+        pass
 
-if clf is None and os.path.exists(FALLBACK_MODEL_PATH):
-    try:
-        clf = joblib.load(FALLBACK_MODEL_PATH)
-        print(f"[INFO] Loaded fallback classifier from {FALLBACK_MODEL_PATH}")
-    except Exception as e:
-        print(f"[FATAL] Failed to load fallback classifier {FALLBACK_MODEL_PATH}: {e}")
-        sys.exit(1)
-
-if clf is None:
-    print("[FATAL] No classifier found. Train a model first.")
+# 2. Load Pipeline
+if not os.path.exists(BEST_MODEL_PATH):
+    print(f"[FATAL] Model not found at {BEST_MODEL_PATH}. Please run 'python train.py' first.")
     sys.exit(1)
 
-# TTS : set to False if you don't want audio
-USE_TTS = True
-engine = pyttsx3.init() if USE_TTS else None
+model = joblib.load(BEST_MODEL_PATH)
+router = ActionRouter(safe_mode=True)
 
+# 3. Text Normalizer
 def normalize_text(text: str) -> str:
     t = text.lower().strip()
-    t = re.sub(r"[^a-z0-9\s]", "", t)
+    t = re.sub(r"[^a-z0-9\s]", " ", t)
     t = re.sub(r"\s+", " ", t).strip()
     return t
 
-def rule_override(clean_text):
-    if any(w in clean_text.split() for w in ("hello","hi","hey","goodmorning","goodevening")):
-        return "greeting", 1.0
-    if "time" in clean_text or "what time" in clean_text:
-        return "get_time", 1.0
-    if "date" in clean_text or "today" in clean_text:
-        return "get_date", 1.0
-    if any(x in clean_text for x in ("youtube", "you tube")):
-        return "open_youtube", 1.0
-    if any(x in clean_text for x in ("volume up","increase volume","louder")):
-        return "increase_volume", 1.0
-    if any(x in clean_text for x in ("volume down","decrease volume","quieter")):
-        return "decrease_volume", 1.0
-    return None, None
+def predict_intent(user_input: str):
+    t_start = time.perf_counter()
 
-def map_intent_to_reply(intent):
-    if intent == "get_time":
-        return time.strftime("The time is %H:%M")
-    if intent == "get_date":
-        return time.strftime("Today is %Y-%m-%d")
-    if intent == "greeting":
-        return "Hello! How can I help?"
-    if intent == "turn_on_light":
-        return "Okay, turning on the light."
-    if intent == "turn_off_light":
-        return "Okay, turning off the light."
-    if intent == "play_music":
-        return "Playing music."
-    if intent == "stop_music":
-        return "Stopping music."
-    if intent == "increase_volume":
-        return "Increasing volume."
-    if intent == "decrease_volume":
-        return "Decreasing volume."
-    if intent == "open_youtube":
-        webbrowser.open("https://www.youtube.com")
-        return "Opening YouTube."
-    if intent == "open_google":
-        webbrowser.open("https://www.google.com")
-        return "Opening google."
-    return f"Recognized intent: {intent}"
+    # Preprocessing
+    t_prep_start = time.perf_counter()
+    clean_text = normalize_text(user_input)
+    prep_ms = (time.perf_counter() - t_prep_start) * 1000
 
-def speak(text):
-    if engine:
-        engine.say(text)
-        engine.runAndWait()
+    # Rule-based overrides (fast deterministic path for high-frequency primitives)
+    rule_intent = None
+    if any(w in clean_text.split() for w in ("hello", "hi", "hey", "goodmorning", "goodevening")):
+        rule_intent = "greeting"
+    elif "what time" in clean_text or clean_text == "time":
+        rule_intent = "get_time"
 
-def get_prob_for_prediction(clf, X):
-    """
-    Return top probability if classifier supports predict_proba.
-    If not supported, returns None.
-    """
-    try:
-        probs = clf.predict_proba(X)
-        if probs is not None:
-            # return max probability for predicted class
-            return float(np.max(probs, axis=1)[0])
-    except Exception:
-        return None
-    return None
+    # ML Inference
+    t_inf_start = time.perf_counter()
+    if hasattr(model, "predict_proba"):
+        probs = model.predict_proba([clean_text])[0]
+        classes = model.classes_
+        top_idx = np.argsort(probs)[::-1]
+        predicted_intent = classes[top_idx[0]]
+        confidence = float(probs[top_idx[0]])
+        top_k = [(classes[i], float(probs[i])) for i in top_idx[:3]]
+    else:
+        predicted_intent = model.predict([clean_text])[0]
+        confidence = 1.0
+        top_k = [(predicted_intent, 1.0)]
+    inf_ms = (time.perf_counter() - t_inf_start) * 1000
+
+    # Apply rule override if present
+    if rule_intent:
+        final_intent = rule_intent
+        confidence = 1.0
+        is_override = True
+    else:
+        final_intent = predicted_intent
+        is_override = False
+
+    # Two-Tier Decision & Action Dispatch
+    t_act_start = time.perf_counter()
+    if confidence < CONF_THRESHOLD:
+        # Tier 2: Low Confidence Fallback
+        top3_options = ", ".join([intent for intent, _ in top_k])
+        action_res = {
+            "success": False,
+            "action": "clarification_fallback",
+            "reply": f"I am not confident in what you meant (Confidence: {confidence:.2f} < {CONF_THRESHOLD:.2f}). Did you mean: {top3_options}?",
+            "metadata": {"fallback_reason": "low_confidence", "top_k": top_k}
+        }
+    elif final_intent == "unknown":
+        # Tier 1: Explicit Out-of-Domain Detection
+        action_res = router.dispatch("unknown", {"text": clean_text})
+    else:
+        # High-confidence in-domain intent
+        action_res = router.dispatch(final_intent, {"text": clean_text})
+    act_ms = (time.perf_counter() - t_act_start) * 1000
+
+    total_proc_ms = (time.perf_counter() - t_start) * 1000
+
+    return {
+        "raw_text": user_input,
+        "clean_text": clean_text,
+        "final_intent": final_intent,
+        "confidence": confidence,
+        "is_override": is_override,
+        "top_k": top_k,
+        "action_result": action_res,
+        "latency": {
+            "preprocess_ms": round(prep_ms, 3),
+            "inference_ms": round(inf_ms, 3),
+            "action_ms": round(act_ms, 3),
+            "total_processing_ms": round(total_proc_ms, 3)
+        }
+    }
 
 def main():
-    print("Text assistant (type 'exit' to quit).")
+    print("==========================================================")
+    print(" Voice Assistant (Text Diagnostic Mode)")
+    print(f" Loaded Model: {type(model).__name__}")
+    print(f" Tuned Confidence Threshold: {CONF_THRESHOLD:.2f}")
+    print(" Type 'exit' or press Ctrl+C to quit.")
+    print("==========================================================\n")
+
     while True:
         try:
-            txt = input("You: ").strip()
-            if not txt:
+            query = input("You > ").strip()
+            if not query:
                 continue
-            if txt.lower() in ("exit","quit"):
+            if query.lower() in ("exit", "quit"):
+                print("Exiting...")
                 break
-            clean = normalize_text(txt)
 
-            intent, prob = rule_override(clean)
-            probs = None
-            if intent is None:
-                X = vect.transform([clean])
-                intent = clf.predict(X)[0]
-                prob = get_prob_for_prediction(clf, X)
+            result = predict_intent(query)
+            act = result["action_result"]
+            lat = result["latency"]
 
-            reply = map_intent_to_reply(intent)
-            print("Agent:", reply, f"(intent={intent}, prob={prob})")
-            speak(reply)
-        except KeyboardInterrupt:
-            print("\nExiting.")
+            print(f"  [Intent]     : {result['final_intent']} (Conf: {result['confidence']:.2f}{' - Rule Override' if result['is_override'] else ''})")
+            print(f"  [Action]     : {act['action']} (Success: {act['success']})")
+            print(f"  [Reply]      : \"{act['reply']}\"")
+            print(f"  [Latency]    : NLU Prep: {lat['preprocess_ms']:.2f}ms | Inference: {lat['inference_ms']:.2f}ms | Action: {lat['action_ms']:.2f}ms | Total: {lat['total_processing_ms']:.2f}ms")
+            if not result['is_override']:
+                top_str = " | ".join([f"{name}: {prob:.2f}" for name, prob in result['top_k']])
+                print(f"  [Candidates] : {top_str}")
+            print("-" * 58)
+
+        except (KeyboardInterrupt, EOFError):
+            print("\nExiting...")
             break
-        except Exception as e:
-            print("Error:", e)
 
 if __name__ == "__main__":
     main()

@@ -24,7 +24,6 @@ i want to know the time,get_time
 check the time,get_time
 time check,get_time
 tell me what time it is,get_time
-
 hello,greeting
 hi,greeting
 hey,greeting
@@ -50,7 +49,6 @@ good to see you,greeting
 hey what's up,greeting
 hi how are you,greeting
 hello hi,greeting
-
 turn on the light,turn_on_light
 switch on the light,turn_on_light
 lights on,turn_on_light
@@ -76,7 +74,6 @@ light the room,turn_on_light
 switch on room light,turn_on_light
 switch on my light,turn_on_light
 put on the lights,turn_on_light
-
 turn off the light,turn_off_light
 switch off the light,turn_off_light
 lights off,turn_off_light
@@ -102,7 +99,6 @@ turn off all lights,turn_off_light
 turn off house lights,turn_off_light
 turn off this light,turn_off_light
 lights out,turn_off_light
-
 increase the volume,increase_volume
 volume up,increase_volume
 raise the volume,increase_volume
@@ -121,14 +117,13 @@ raise audio level,increase_volume
 increase the audio,increase_volume
 volume needs increase,increase_volume
 i need more volume,increase_volume
-turn up, increase_volume
+turn up,increase_volume
 sound increase,increase_volume
 volume go up,increase_volume
 make it loud,increase_volume
 boost audio,increase_volume
 increase my volume,increase_volume
 sound louder please,increase_volume
-
 decrease the volume,decrease_volume
 volume down,decrease_volume
 lower the volume,decrease_volume
@@ -154,7 +149,6 @@ turn audio down,decrease_volume
 reduce sound please,decrease_volume
 volume reduce,decrease_volume
 keep volume low,decrease_volume
-
 play music,play_music
 start music,play_music
 play some music,play_music
@@ -180,7 +174,6 @@ start my music,play_music
 turn music on,play_music
 activate music,play_music
 begin playing music,play_music
-
 stop music,stop_music
 pause the music,stop_music
 stop songs,stop_music
@@ -206,7 +199,6 @@ end the music,stop_music
 kill music,stop_music
 stop playing songs,stop_music
 pause playback,stop_music
-
 tell me a joke,tell_joke
 say a joke,tell_joke
 make me laugh,tell_joke
@@ -232,7 +224,6 @@ something funny please,tell_joke
 joke time,tell_joke
 tell a comedy line,tell_joke
 share a joke,tell_joke
-
 what is the date,get_date
 tell me the date,get_date
 today's date please,get_date
@@ -258,7 +249,6 @@ day and date please,get_date
 i want the date,get_date
 give date,get_date
 today's day and date,get_date
-
 open youtube,open_youtube
 launch youtube,open_youtube
 start youtube,open_youtube
@@ -284,7 +274,6 @@ open youtube application,open_youtube
 launch the youtube app,open_youtube
 open my video app,open_youtube
 open the youtube page,open_youtube
-
 open google,open_google
 launch google,open_google
 start google,open_google
@@ -310,7 +299,6 @@ turn on google,open_google
 google site open,open_google
 open google search engine,open_google
 start search,open_google
-
 open calculator,open_calculator
 start calculator,open_calculator
 launch calculator,open_calculator
@@ -336,7 +324,6 @@ turn on calc,open_calculator
 calculator launch,open_calculator
 start math calculator,open_calculator
 begin calculator,open_calculator
-
 open settings,open_settings
 open the settings,open_settings
 go to settings,open_settings
@@ -362,7 +349,6 @@ open setup options,open_settings
 open my settings,open_settings
 open system preferences,open_settings
 open settings page,open_settings
-
 shutdown the system,shutdown_device
 shut down device,shutdown_device
 power off the system,shutdown_device
@@ -388,7 +374,6 @@ please power off,shutdown_device
 turn computer off,shutdown_device
 shut down everything,shutdown_device
 shut machine down,shutdown_device
-
 restart system,restart_device
 restart device,restart_device
 reboot the system,restart_device
@@ -414,7 +399,6 @@ reboot this machine,restart_device
 start again device,restart_device
 restart entire system,restart_device
 system needs restart,restart_device
-
 set alarm for 7 am,set_alarm
 please set an alarm,set_alarm
 set an alarm for me,set_alarm
@@ -440,7 +424,6 @@ alarm at 7 am,set_alarm
 morning alarm please,set_alarm
 7 am alarm,set_alarm
 alarm setup,set_alarm
-
 set a reminder,set_reminder
 remind me later,set_reminder
 set reminder for me,set_reminder
@@ -466,3 +449,85 @@ create a reminder please,set_reminder
 add this reminder,set_reminder
 help me remember,set_reminder
 store reminder,set_reminder
+do you have the current time,get_time
+check the clock for me,get_time
+what hour is it right now,get_time
+what day of the month is it,get_date
+tell me today calendar date,get_date
+which day is it today on the calendar,get_date
+good morning assistant,greeting
+hey there hope you are doing well,greeting
+good evening how are you today,greeting
+can you illuminate the room,turn_on_light
+it is too dark here please switch the lights on,turn_on_light
+enable the living room lights,turn_on_light
+kill the lights for bed,turn_off_light
+it is too bright turn off the lamps,turn_off_light
+switch off lights in the room,turn_off_light
+it is too quiet make it louder,increase_volume
+can you raise the audio level,increase_volume
+boost the volume please,increase_volume
+it is too loud in here lower the sound,decrease_volume
+lower the sound level a bit,decrease_volume
+soften the audio output,decrease_volume
+put on some nice tunes,play_music
+start playing a track for me,play_music
+resume audio playback,play_music
+silence the music,stop_music
+cut the audio playback,stop_music
+halt the currently playing song,stop_music
+make me laugh with something funny,tell_joke
+got any humorous stories,tell_joke
+crack a funny joke for me,tell_joke
+open up the youtube video player,open_youtube
+take me over to youtube,open_youtube
+browse videos on youtube,open_youtube
+open google search engine,open_google
+launch google web search,open_google
+take me to google home page,open_google
+open up my math calculator,open_calculator
+bring up the system calculator,open_calculator
+launch the math calculation tool,open_calculator
+bring up device preferences,open_settings
+open computer settings panel,open_settings
+show system configuration settings,open_settings
+power down the computer safely,shutdown_device
+initiate machine shutdown,shutdown_device
+turn off the whole system,shutdown_device
+reboot my machine now,restart_device
+initiate system restart,restart_device
+perform a clean reboot,restart_device
+wake me up at six in the morning,set_alarm
+schedule a wake up alarm for tomorrow,set_alarm
+ring an alarm in twenty minutes,set_alarm
+remember to notify me about my meeting,set_reminder
+create a note to buy groceries,set_reminder
+remind me to call mom tonight,set_reminder
+what is quantum computing,unknown
+book a table at the italian bistro,unknown
+recipe for chocolate chip cookies,unknown
+who won the cricket world cup,unknown
+how far is mars from earth,unknown
+write a poem about winter,unknown
+order a pizza with extra cheese,unknown
+what is the capital of australia,unknown
+translate this sentence into french,unknown
+buy groceries online,unknown
+how do airplanes fly,unknown
+what is the stock price of apple,unknown
+recommend a good sci fi movie,unknown
+solve this quadratic equation for x,unknown
+who painted the mona lisa,unknown
+find directions to the nearest hospital,unknown
+how many miles to new york,unknown
+what is photosynthesis in plants,unknown
+book a flight to london next friday,unknown
+what time does the supermarket close,unknown
+who was the first president of the united states,unknown
+tell me about black holes in space,unknown
+what is the speed of light,unknown
+how do i make sourdough bread,unknown
+what is the exchange rate for dollars to euros,unknown
+tell me a summary of hamlet,unknown
+who directed the movie interstellar,unknown
+where is mount everest located,unknown

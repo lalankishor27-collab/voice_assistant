@@ -1,0 +1,2 @@
+best_model,test_accuracy,test_f1_macro,test_f1_weighted,test_samples
+LinearSVM,0.9065,0.9053,0.9066,107
